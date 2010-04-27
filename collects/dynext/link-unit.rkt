@@ -432,7 +432,7 @@
       ;; ---- some helpers:
       
       (define-values (my-process* stdio-link)
-	(let-values ([(p* do-stdio) (include (build-path "private" "stdio.ss"))])
+	(let-values ([(p* do-stdio) (include (build-path "private" "stdio.rkt"))])
 	  (values
 	   p*
 	   (lambda (start-process quiet?)
@@ -446,4 +446,4 @@
 		  (loop (add1 n))
 		  f)))))
 
-      (include (build-path "private" "macinc.ss"))))
+      (include (build-path "private" "macinc.rkt"))))
