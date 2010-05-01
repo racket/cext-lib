@@ -266,7 +266,7 @@
 	     [else (bad-name name)])]))
       
       (define-values (my-process* stdio-compile)
-	(let-values ([(p* do-stdio) (include (build-path "private" "stdio.ss"))])
+	(let-values ([(p* do-stdio) (include (build-path "private" "stdio.rkt"))])
 	  (values
 	   p*
 	   (lambda (start-process quiet?)
