@@ -140,7 +140,7 @@
 			    (format "-bE:~a/ext.exp" (include-dir))
 			    "-bnoentry")]
 	  [(parisc-hpux) (list "-b")]
-	  [(ppc-macosx ppc-darwin x86_64-macosx x86_86-darwin) mac-link-flags]
+	  [(ppc-macosx ppc-darwin x86_64-macosx x86_64-darwin) mac-link-flags]
           [(i386-macosx i386-darwin) (append mac-link-flags '("-m32"))]
 	  [(i386-cygwin) win-gcc-linker-flags]
 	  [else (list "-fPIC" "-shared")]))
@@ -350,7 +350,7 @@
 			 libs
 			 output-strings)])
 		  (unless quiet? 
-		    (printf "link-extension: ~a~n" command))
+		    (printf "link-extension: ~a\n" command))
 		  (stdio-link (lambda (quiet?)
 				(apply my-process* command))
 			      quiet?)
@@ -393,25 +393,25 @@
 				    (cddr l)]
 				   [else (cons (car l) (loop (cdr l)))]))])
 			  (unless quiet?
-			    (printf "link-extension, dlltool phase: ~a~n" 
+			    (printf "link-extension, dlltool phase: ~a\n" 
 				    (cons dlltool dll-command)))
 			  (stdio-link (lambda (quiet?) 
 					(apply my-process* dlltool dll-command))
 				      quiet?)
 			  (unless quiet?
-			    (printf "link-extension, re-link phase: ~a~n" 
+			    (printf "link-extension, re-link phase: ~a\n" 
 				    command1))
 			  (stdio-link (lambda (quiet?) 
 					(apply my-process* command1))
 				      quiet?)
 			  (unless quiet?
-			    (printf "link-extension, re-dlltool phase: ~a~n" 
+			    (printf "link-extension, re-dlltool phase: ~a\n" 
 				    (cons dlltool dll-command)))
 			  (stdio-link (lambda (quiet?)
 					(apply my-process* dlltool dll-command))
 				      quiet?)
 			  (unless quiet?
-			    (printf "link-extension, last re-link phase: ~a~n" 
+			    (printf "link-extension, last re-link phase: ~a\n" 
 				    command2))
 			  (stdio-link (lambda (quiet?)
 					(apply my-process* command2))
