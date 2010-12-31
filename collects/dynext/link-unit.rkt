@@ -1,10 +1,10 @@
 
 (module link-unit mzscheme
   (require mzlib/unit
-	   mzlib/include
 	   mzlib/process
 	   mzlib/sendevent
 	   "private/dirs.ss"
+           "private/stdio.rkt"
 	   "private/cmdargs.ss"
            "filename-version.ss")
 
@@ -140,7 +140,7 @@
 			    (format "-bE:~a/ext.exp" (include-dir))
 			    "-bnoentry")]
 	  [(parisc-hpux) (list "-b")]
-	  [(ppc-macosx ppc-darwin x86_64-macosx x86_86-darwin) mac-link-flags]
+	  [(ppc-macosx ppc-darwin x86_64-macosx x86_64-darwin) mac-link-flags]
           [(i386-macosx i386-darwin) (append mac-link-flags '("-m32"))]
 	  [(i386-cygwin) win-gcc-linker-flags]
 	  [else (list "-fPIC" "-shared")]))
@@ -349,8 +349,8 @@
 					    in))
 			 libs
 			 output-strings)])
-		  (unless quiet? 
-		    (printf "link-extension: ~a~n" command))
+		  (unless #f ; quiet? 
+		    (printf "link-extension: ~a\n" command))
 		  (stdio-link (lambda (quiet?)
 				(apply my-process* command))
 			      quiet?)
@@ -393,25 +393,25 @@
 				    (cddr l)]
 				   [else (cons (car l) (loop (cdr l)))]))])
 			  (unless quiet?
-			    (printf "link-extension, dlltool phase: ~a~n" 
+			    (printf "link-extension, dlltool phase: ~a\n" 
 				    (cons dlltool dll-command)))
 			  (stdio-link (lambda (quiet?) 
 					(apply my-process* dlltool dll-command))
 				      quiet?)
 			  (unless quiet?
-			    (printf "link-extension, re-link phase: ~a~n" 
+			    (printf "link-extension, re-link phase: ~a\n" 
 				    command1))
 			  (stdio-link (lambda (quiet?) 
 					(apply my-process* command1))
 				      quiet?)
 			  (unless quiet?
-			    (printf "link-extension, re-dlltool phase: ~a~n" 
+			    (printf "link-extension, re-dlltool phase: ~a\n" 
 				    (cons dlltool dll-command)))
 			  (stdio-link (lambda (quiet?)
 					(apply my-process* dlltool dll-command))
 				      quiet?)
 			  (unless quiet?
-			    (printf "link-extension, last re-link phase: ~a~n" 
+			    (printf "link-extension, last re-link phase: ~a\n" 
 				    command2))
 			  (stdio-link (lambda (quiet?)
 					(apply my-process* command2))
@@ -420,19 +420,14 @@
 			  (delete-file expfile))))))
 		(error 'link-extension "can't find an installed linker")))))
       
-      (define (macos-link quiet? input-files output-file)
-	(macos-make 'link-extension "linking-project" "so" quiet? 
-		    input-files output-file null))
-      
       (define link-extension
 	(case (system-type)
-	  [(unix windows macosx) unix/windows-link]
-	  [(macos) macos-link]))
+	  [(unix windows macosx) unix/windows-link]))
 
       ;; ---- some helpers:
       
       (define-values (my-process* stdio-link)
-	(let-values ([(p* do-stdio) (include (build-path "private" "stdio.rkt"))])
+	(let-values ([(p* do-stdio) (get-stdio)])
 	  (values
 	   p*
 	   (lambda (start-process quiet?)
@@ -444,6 +439,4 @@
 	    (let ([f (build-path d (format "tmp~a.~a" n suffix))])
 	      (if (file-exists? f)
 		  (loop (add1 n))
-		  f)))))
-
-      (include (build-path "private" "macinc.rktl"))))
+		  f)))))))
