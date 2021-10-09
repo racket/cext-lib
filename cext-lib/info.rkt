@@ -10,3 +10,6 @@
 (define pkg-desc "Tools for managing C extensions, such as `raco ctool`")
 
 (define pkg-authors '(mflatt))
+
+(define license
+  '(Apache-2.0 OR MIT))
