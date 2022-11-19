@@ -10,6 +10,7 @@
 (require (prefix-in compiler:option: compiler/option)
          compiler/compiler
          compiler/distribute
+         compiler/private/language
          raco/command-name
          racket/cmdline
          dynext/file
@@ -29,6 +30,7 @@
 (define exe-output (make-parameter #f))
 (define exe-embedded-flags (make-parameter '("-U" "--")))
 (define exe-embedded-libraries (make-parameter null))
+(define exe-embedded-languages (make-parameter null))
 (define exe-aux (make-parameter null))
 (define exe-embedded-collects-path (make-parameter #f))
 (define exe-embedded-collects-dest (make-parameter #f))
@@ -39,7 +41,7 @@
 (define mods-output (make-parameter #f))
 (define runtime-files-dir (make-parameter #f))
 (define runtime-files-relative-path (make-parameter #f))
- 
+
 (define default-plt-name "archive")
 
 (define disable-inlining (make-parameter #f))
@@ -201,6 +203,10 @@
      [help-labels
       "----------------------- C-embeddable module flags ---------------------------"]
      [multi
+      [("++lang")
+       ,(lambda (f l)
+          (exe-embedded-languages (append (exe-embedded-languages) (list l))))
+       ("Embed support for `#lang <lang>` in `--c-mods` or `--mods` output" "lang")]
       [("++lib")
        ,(lambda (f l)
           (exe-embedded-libraries (append (exe-embedded-libraries) (list l))))
@@ -225,7 +231,7 @@
        ("Very verbose mode")]])
    (lambda (accum . files)
      (let ([mode (let ([l (filter symbol? accum)])
-                   (if (null? l) 
+                   (if (null? l)
                        (error mzc-symbol "no mode flag specified")
                        (car l)))])
        (values
@@ -297,7 +303,11 @@
          ((dynamic-require 'compiler/embed 'write-module-bundle)
           #:modules
           (append (map (lambda (l) `(#f (file ,l))) source-files)
-             (map (lambda (l) `(#t (lib ,l))) (exe-embedded-libraries)))))
+                  (map (lambda (l) `(#t (lib ,l))) (exe-embedded-libraries))
+                  (map (lambda (l) `(#t ,l))
+                       (languages->libraries
+                        (exe-embedded-languages)
+                        #:who (string->symbol (short-program+command-name)))))))
        (close-output-port out)
        (let ([out (open-output-file dest #:exists 'truncate/replace)]
              [in (if (runtime-files-dir)
