@@ -301,6 +301,7 @@
      (let-values ([(in out) (make-pipe)])
        (parameterize ([current-output-port out])
          ((dynamic-require 'compiler/embed 'write-module-bundle)
+          #:verbose? (compiler:option:verbose)
           #:modules
           (append (map (lambda (l) `(#f (file ,l))) source-files)
                   (map (lambda (l) `(#t (lib ,l))) (exe-embedded-libraries))
